@@ -21,6 +21,11 @@ parameters:
       - Ubuntu 13.10 (Saucy Salamander)
     description: Must be a supported operating system.
 
+  redis_version:
+    description: version of redis to install
+    type: string
+    default: 2.8.9
+
   server_hostname:
     description: Hostname for the server.
     type: string
@@ -90,6 +95,7 @@ resources:
               master_port:   { get_param: redis_port }
               auth-pass:     { get_param: redis_password }
               logfile: /var/log/sentinel.log
+          version: { get_param: redis_version }
 
 outputs:
 
