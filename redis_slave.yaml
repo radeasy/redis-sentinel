@@ -70,7 +70,7 @@ resources:
       username: root
       private_key: { get_param: ssh_private_key }
       host: { get_attr: [redis_slave_server, accessIPv4] }
-      kitchen: https://github.com/organizations/rackspace-orchestration-templates/redis-sentinel.git
+      kitchen: https://github.com/rackspace-orchestration-templates/redis-sentinel.git
       node:
         run_list: [ "recipe[rax-redis::config_slave_sentinel]" ]
         redisio:
