@@ -54,6 +54,7 @@ the `-P` flag to specify a custom parameter.
 * `server_flavor`: Sets the flavor of the created servers. (Default: 1 GB Performance)
 * `image`: Operating system to install (Default: Ubuntu 12.04 LTS (Precise
   Pangolin))
+* `redis_version`: version of redis to install (Default: 2.8.9)
 * `redis_master_hostname`: Hostname for initial master server. (Default: redis)
 * `redis_slave_hostname`: Hostname for initial slave servers (Default: redis)
 * `ssh_keypair_name`: The nova keypair name to create (Default: redis)
