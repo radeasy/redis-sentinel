@@ -118,8 +118,7 @@ resources:
       node:
         run_list: [ "recipe[apt]",
                     "recipe[build-essential]",
-                    "recipe[rax-redis::config_slave_sentinel]",
-                    "recipe[its::broken]" ]
+                    "recipe[rax-redis::config_slave_sentinel]" ]
         redisio:
           default_settings:
             requirepass: { get_attr: [redis_password, value] }
