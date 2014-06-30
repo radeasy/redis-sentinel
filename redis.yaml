@@ -5,10 +5,25 @@ description: |
   along with a sentinel on each slave to automate promotion of a new master
   when the existing one fails.
 
+parameter_groups:
+
+- label: Server Settings
+  parameters:
+  - image_name
+  - server_flavor
+
+- label: Redis Settings
+  parameters:
+  - redis_version
+  - redis_master_hostname
+  - redis_slave_hostname
+  - redis_port
+  - sentinel_port
 
 parameters:
 
   server_flavor:
+    label: Server Size
     description: Rackspace Cloud Server flavor
     type: string
     default: 1 GB Performance
@@ -43,26 +58,31 @@ parameters:
       description: Must be a supported operating system.
 
   redis_version:
+    label: Redis Version
     description: version of redis to install
     type: string
     default: 2.8.9
 
   redis_master_hostname:
+    label: Master Redis Hostname
     description: Hostname for nominal redis master
     type: string
     default: redis
 
   redis_slave_hostname:
+    label: Slave Redis Hostname
     description: Hostname for the slaves
     type: string
     default: redis
 
   ssh_keypair_name:
+    label: SSH Keypair
     description: Nova keypair name for ssh access to the servers
     type: string
     default: redis
 
   slave_node_count:
+    label: Number Of Slave Nodes
     description: Number of slave nodes to create
     type: number
     default: 2
@@ -70,16 +90,19 @@ parameters:
       - range: { min: 1 }
 
   slave_server_hostname:
+    label: Slave Hostname
     description: hostname for slave servers
     type: string
     default: redis-slave
 
   redis_port:
+    label: Redis Port
     description: port for redis servers to listen on
     type: number
     default: 6379
 
   sentinel_port:
+    label: Sentinels Port
     description: port for sentinels to listen on
     type: number
     default: 26379
