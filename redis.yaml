@@ -10,7 +10,7 @@ parameter_groups:
 - label: Server Settings
   parameters:
   - image
-  - server
+  - flavor
   - slave_node_count
 
 - label: Redis Settings
@@ -23,7 +23,6 @@ parameter_groups:
   - redis_master_hostname
   - redis_slave_hostname
   - redis_version
-  - redis_hostname
   - kitchen
   - chef_version
 
@@ -205,7 +204,7 @@ resources:
           flavor:           { get_param: flavor }
           image:            { get_param: image }
           server_hostname:  { get_param: redis_slave_hostname }
-          ssh_keypair_name: { get_param: ssh_keypair_name }
+          ssh_keypair_name: { get_resource: ssh_key }
           ssh_private_key:  { get_attr: [ssh_key, private_key] }
           redis_password:   { get_attr: [redis_password, value] }
           master_ip:        { get_attr: [redis_master, accessIPv4] }

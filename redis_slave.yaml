@@ -18,7 +18,6 @@ parameters:
     constraints:
     - allowed_values:
       - Ubuntu 12.04 LTS (Precise Pangolin)
-      - Ubuntu 13.10 (Saucy Salamander)
     description: Must be a supported operating system.
 
   redis_version:
