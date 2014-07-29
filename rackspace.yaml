@@ -2,7 +2,7 @@ schema-version: 1.0.0
 application-family: Databases
 application-name: Redis
 application-version: 2.8.6
-flavor: Multiple Linux servers clustered running Redis with Sentinel
+flavor: Multiple Linux servers
 flavor-weight: 1
 abstract: |
   Multiple Linux servers running [redis](http://redis.io/), clustered with
