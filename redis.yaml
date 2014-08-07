@@ -70,7 +70,7 @@ parameters:
     label: Redis Version
     description: version of redis to install
     type: string
-    default: 2.8.9
+    default: 2.8.13
 
   redis_master_hostname:
     label: Master Redis Hostname
