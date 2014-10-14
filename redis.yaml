@@ -68,13 +68,13 @@ parameters:
 
   redis_version:
     label: Redis Version
-    description: version of redis to install
+    description: Version of Redis to install
     type: string
     default: 2.8.13
 
   redis_master_hostname:
     label: Master Redis Hostname
-    description: Hostname for nominal redis master
+    description: Hostname for nominal Redis master
     type: string
     default: redis
 
@@ -98,7 +98,7 @@ parameters:
   redis_port:
     label: Redis Port
     description: |
-      Required: Port for redis servers to listen on, it must be different than
+      Required: Port for Redis servers to listen on, it must be different than
       your sentinel port.
     type: number
     default: 6379
@@ -112,7 +112,7 @@ parameters:
     label: Sentinels Port
     description: |
       Required: Port for sentinels to listen on, it must be different than your
-      redis port.
+      Redis port.
     type: number
     default: 26379
     constraints:
