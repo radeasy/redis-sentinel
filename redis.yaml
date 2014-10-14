@@ -135,6 +135,8 @@ parameters:
 
   child_template:
     label: Child Template
+    description: |
+      URL to the Child template that will provision Redis slave nodes.
     type: string
     default: https://raw.githubusercontent.com/rackspace-orchestration-templates/redis-sentinel/master/redis_slave.yaml
 
