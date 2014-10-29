@@ -8,7 +8,7 @@ parameters:
   flavor:
     description: Flavor for Cloud Servers
     type: string
-    default: 2 GB Performance
+    default: 2 GB General Purpose v1
 
   image:
     label: Server Image
