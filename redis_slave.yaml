@@ -33,7 +33,6 @@ parameters:
   ssh_keypair_name:
     description: Nova keypair name for ssh access to the server
     type: string
-    default: jgbes
 
   ssh_private_key:
     description: private key to access the created servers
