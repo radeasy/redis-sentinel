@@ -1,6 +1,7 @@
 from fabric.api import env, run, task
 from envassert import detect, file, group, package, port, process, service, \
     user
+from hot.utils.test import get_artifacts, http_check
 
 
 @task
@@ -37,3 +38,9 @@ def check_slave():
     assert service.is_enabled("redisslave"), "redisslave is not enabled"
     assert service.is_enabled("redis_sentinel_cluster"), \
         "redis_sentinel_cluster is not enabled"
+
+
+@task
+def artifacts():
+    env.platform_family = detect.detect()
+    get_artifacts()
