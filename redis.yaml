@@ -1,9 +1,11 @@
 heat_template_version: 2013-05-23
 
 description: |
-  This is a Heat template to deploy a redis cluster on Rackspace Cloud Servers
-  along with a sentinel on each slave to automate promotion of a new master
-  when the existing one fails.
+  #### Multiple Servers
+
+  Multiple Linux servers running [redis 2.8.13](http://redis.io/)
+  clustered with a [sentinel](http://redis.io/topics/sentinel)
+  instance on each node.
 
 parameter_groups:
 
