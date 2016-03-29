@@ -1,9 +1,12 @@
-heat_template_version: 2013-05-23
+heat_template_version: 2016-03-26
 
 description: |
   #### Multiple Servers
 
-  Multiple Linux servers running [redis 2.8.13](http://redis.io/)
+  Try to update Redis to version 3.0.7. This should be built from the source.
+  Also updated operating system allowed to Ubuntu version to 14.04 LTS and Centos 6.
+
+  Multiple Linux servers running [redis 3.0.7](http://redis.io/)
   clustered with a [sentinel](http://redis.io/topics/sentinel)
   instance on each node.
 
@@ -36,7 +39,7 @@ parameters:
       Rackspace Cloud Server flavor to use. The size is based on the amount of
       RAM for the provisioned server.
     type: string
-    default: 1 GB General Purpose v1
+    default: 512MB Standard Instance
     constraints:
     - allowed_values:
       - 1 GB General Purpose v1
@@ -62,29 +65,31 @@ parameters:
       Server image used for all servers that are created as a part of this
       deployment
     type: string
-    default: Ubuntu 12.04 LTS (Precise Pangolin) (PVHVM)
+    default: Centos 6 (PVHVM)
     constraints:
     - allowed_values:
       - Ubuntu 12.04 LTS (Precise Pangolin) (PVHVM)
+      - Ubuntu 14.04 LTS (Trusty Tahr) (PVHVM)
+      - Centos 6 (PVHVM)
       description: Must be a supported operating system.
 
   redis_version:
     label: Redis Version
     description: Version of Redis to install
     type: string
-    default: 2.8.13
+    default: 3.0.7
 
   redis_master_hostname:
     label: Master Redis Hostname
     description: Hostname for nominal Redis master
     type: string
-    default: redis
+    default: redis-master
 
   redis_slave_hostname:
     label: Slave Redis Hostname
     description: Hostname for the slaves
     type: string
-    default: redis
+    default: redis-slave
 
   slave_node_count:
     label: Number Of Slave Nodes
@@ -94,8 +99,8 @@ parameters:
     constraints:
     - range:
         min: 1
-        max: 25
-      description: Must be between 1 and 25 servers.
+        max: 3
+      description: Must be between 1 and 3 servers.
 
   redis_port:
     label: Redis Port
@@ -127,7 +132,8 @@ parameters:
     label: Kitchen
     description: URL for the kitchen to use
     type: string
-    default: https://github.com/rackspace-orchestration-templates/redis-sentinel
+    default: https://github.com/radeasy/redis-sentinel
+    #default: https://github.com/rackspace-orchestration-templates/redis-sentinel
 
   chef_version:
     label: Chef Version
@@ -140,7 +146,8 @@ parameters:
     description: |
       URL to the Child template that will provision Redis slave nodes.
     type: string
-    default: https://raw.githubusercontent.com/rackspace-orchestration-templates/redis-sentinel/master/redis_slave.yaml
+    default: https://raw.githubusercontent.com/radeasy/redis-sentinel/master/redis_slave.yaml
+    #default: https://raw.githubusercontent.com/rackspace-orchestration-templates/redis-sentinel/master/redis_slave.yaml
 
 resources:
 

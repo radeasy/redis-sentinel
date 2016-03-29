@@ -1,29 +1,31 @@
-heat_template_version: 2013-05-23
+heat_template_version: 2016-03-26
 
 description: |
-  This is a Heat template to deploy a single Linux server running elasticsearch.
+  This is a Heat template to deploy a single Linux server running Redis slave.
 
 parameters:
 
   flavor:
     description: Flavor for Cloud Servers
     type: string
-    default: 2 GB General Purpose v1
+    default: 512MB Standard Instance
 
   image:
     label: Server Image
     description: Operating system to use for created servers
     type: string
-    default: Ubuntu 12.04 LTS (Precise Pangolin) (PVHVM)
+    default: Centos 6 (PVHVM)
     constraints:
     - allowed_values:
       - Ubuntu 12.04 LTS (Precise Pangolin) (PVHVM)
+      - Ubuntu 14.04 LTS (Trusty Tahr) (PVHVM)
+      - Centos 6 (PVHVM)
     description: Must be a supported operating system.
 
   redis_version:
     description: version of redis to install
     type: string
-    default: 2.8.9
+    default: 3.0.7
 
   server_hostname:
     description: Hostname for the server.
@@ -64,7 +66,8 @@ parameters:
     label: Kitchen
     description: URL for the kitchen to use
     type: string
-    default: https://github.com/rackspace-orchestration-templates/redis-sentinel
+    default: https://github.com/radeasy/redis-sentinel
+    #default: https://github.com/rackspace-orchestration-templates/redis-sentinel
 
   chef_version:
     label: Chef Version
