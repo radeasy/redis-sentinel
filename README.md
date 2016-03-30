@@ -7,11 +7,11 @@ This is a template to deploy a [Redis](http://redis.io/)
 arbitrary number of slaves with [OpenStack
 Heat](https://wiki.openstack.org/wiki/Heat) on the [Rackspace
 Cloud](http://www.rackspace.com/cloud/). This template configures the servers
-using [chef-solo](http://docs.opscode.com/chef_solo.html).
+using [ansible](https://www.ansible.com/).
 
 Requirements
 ============
-* A Heat provider that supports the Rackspace `OS::Heat::ChefSolo` plugin.
+* A Heat provider that supports the Rackspace `OS::Heat::SoftwareConfig` plugin.
 * An OpenStack username, password, and tenant id.
 * [python-heatclient](https://github.com/openstack/python-heatclient)
 `>= v0.2.8`:
@@ -47,8 +47,11 @@ export OS_TENANT_ID=<TENANT-ID>
 export OS_AUTH_URL=<AUTH-URL>
 ```
 
-Parameters
+Parameters / TODO!
 ==========
+
+This needs to change to reflect current state.
+
 Parameters can be replaced with your own values when standing up a stack. Use
 the `-P` flag to specify a custom parameter.
 
@@ -93,16 +96,4 @@ guidelines will be drafted in the near future.
 
 License
 =======
-```
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+To be added, follow MIT.
