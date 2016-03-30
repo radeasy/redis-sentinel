@@ -17,7 +17,6 @@ parameters:
     default: Centos 6 (PVHVM)
     constraints:
     - allowed_values:
-      - Ubuntu 12.04 LTS (Precise Pangolin) (PVHVM)
       - Ubuntu 14.04 LTS (Trusty Tahr) (PVHVM)
       - Centos 6 (PVHVM)
     description: Must be a supported operating system.

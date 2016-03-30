@@ -67,7 +67,6 @@ parameters:
     default: Centos 6 (PVHVM)
     constraints:
     - allowed_values:
-      - Ubuntu 12.04 LTS (Precise Pangolin) (PVHVM)
       - Ubuntu 14.04 LTS (Trusty Tahr) (PVHVM)
       - Centos 6 (PVHVM)
       description: Must be a supported operating system.
@@ -82,13 +81,13 @@ parameters:
     label: Master Redis Hostname
     description: Hostname for nominal Redis master
     type: string
-    default: redis-master-test
+    default: redis-master-stack-test
 
   redis_slave_hostname:
     label: Slave Redis Hostname
     description: Hostname for the slaves
     type: string
-    default: redis-slave-test
+    default: redis-slave-stack-test
 
   slave_node_count:
     label: Number Of Slave Nodes
@@ -162,9 +161,53 @@ resources:
       length: 16
       sequence: lettersdigits
 
+  redis_pull_role_config:
+    type: OS::Heat::SoftwareConfig
+    depends_on: redis_master
+    properties:
+      group: ansible
+      config: |
+        #!/bin/bash
+        git clone git@github.com:radeasy/redis-sentinel.git
+        git checkout story/NOV-2805-provision-a-redis-sentinel-cluster
+        cp -r redis-sentinel/roles /etc/ansible/roles
+        # needed dependency by one of the Ansible modules
+        yum install -y libselinux-python python-pycurl facter
+
+  deploy_role:
+    type: OS::Heat::SoftwareDeployment
+    properties:
+      signal_transport: TEMP_URL_SIGNAL
+      config:
+        get_resource: redis_pull_role_config
+      server:
+        get_resource: redis_master
+
+  redis_config:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: ansible
+      config: |
+        ---
+        - name: Apply Nginx Role
+          hosts: localhost
+          connection: local
+          roles:
+            - ssh
+
+  deploy_redis:
+      type: OS::Heat::SoftwareDeployment
+      depends_on: deploy_role
+      properties:
+        signal_transport: TEMP_URL_SIGNAL
+        config:
+          get_resource: redis_config
+        server:
+          get_resource: redis_master
+
   redis_master:
     type: OS::Nova::Server
-    depends_on: ssh_key
+    depends_on: ssh_key deploy_role
     properties:
       name: { get_param: redis_master_hostname }
       flavor: { get_param: flavor }
@@ -172,18 +215,10 @@ resources:
       key_name: { get_resource: ssh_key }
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
+      software_config_transport: POLL_TEMP_URL
+      config_drive: true
+      user_data_format: SOFTWARE_CONFIG
 
-  redis_master_config:
-    type: OS::Heat::SoftwareConfig
-    depends_on: redis_master
-    properties:
-      group: ansible
-      config: |
-        #!/bin/bash
-        git clone https://github.com/rackerlabs/rs-heat-docs.git
-        cp -r redis-sentinel/roles /etc/ansible/roles
-        # needed dependency by one of the Ansible modules
-        yum install -y libselinux-python python-pycurl facter
 
 #      username: root
 #      private_key: { get_attr: [ssh_key, private_key] }
