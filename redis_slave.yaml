@@ -14,7 +14,7 @@ parameters:
     label: Server Image
     description: Operating system to use for created servers
     type: string
-    default: Centos 6 (PVHVM)
+    default: Ubuntu 14.04 LTS (Trusty Tahr) (PVHVM)
     constraints:
     - allowed_values:
       - Ubuntu 12.04 LTS (Precise Pangolin) (PVHVM)
