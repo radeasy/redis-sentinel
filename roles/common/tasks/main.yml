@@ -1,0 +1,70 @@
+# Gather specifics info about operating system on guets. Choose correct book.
+# OS specific operations it uses variables named after OS. e.g. CentOS.yml.
+- name: Gather OS Specific Variables.
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_distribution }}.yml"
+  ignore_errors: True
+
+- name: Include global/platform/app vars
+  include_vars: "{{ item }}"
+  with_items:
+    - "../../../env_vars/main.yml"
+    - "../../../env_vars/{{ env }}/main.yml"
+    - "../../../env_vars/{{ env }}/{{ app }}.yml"
+  ignore_errors: False
+
+- name: List Operating System
+  shell: echo 'Your distro is ' + {{ ansible_distribution }} + ' and your os_family is ' + {{ ansible_os_family }} + ' vars file ' + {{ varsfile }}
+  always_run: yes
+
+# Copy bashrc file to server. Add fancy aliases. CentOS.
+# - name: Copy bahsrc with fancy aliases.
+#   copy: src=bashrc dest=/{{ rootowner }}/.bashrc owner={{ rootowner }} group={{ rootgroup }} mode=0644
+#   notify:
+#     - reload bashrc
+#   when: ansible_os_family == "RedHat"
+  # tags: ssh
+
+- name: Install python bindings for ansible. Install rsync.
+  yum: pkg={{ item }} state=installed
+  with_items:
+    - libselinux-python
+    - rsync
+    - bc
+    - facter
+  ignore_errors: yes
+  when: ansible_os_family == 'RedHat'
+  sudo: yes
+
+# BASHRC - fancy terminal prompt and aliases.
+# Use extra avriable on command line: `-e bashrc=true`
+- name: Backup bashrc files. With timestamp.
+  shell: /bin/cp -r /{{ item }}/.bashrc /{{ item }}/.bashrc_{{ ansible_date_time.date }}_{{ ansible_date_time.hour }}:{{ ansible_date_time.minute }}_bcp
+  with_items:
+      - root
+      - /home/{{ ansible_ssh_user }}
+  sudo: yes
+  ignore_errors: True
+  when: bashrc=="True"
+
+# Use extra avriable on command line: `-e bashrc=true`
+- name: Install fancy bash and aliases. CentOS.
+  template: src={{ env }}/bashrc.j2 dest=/{{ item }}/.bashrc
+  with_items:
+    - root
+    - /home/{{ ansible_ssh_user }}
+  sudo: yes
+  when: bashrc=="True" and ansible_os_family=="RedHat"
+
+# Use extra avriable on command line: `-e bashrc=true`
+- name: Install fancy bash and aliases. Ubuntu.
+  template: src={{ env }}/bashrc_profile.j2 dest=/{{ item }}/.bashrc
+  with_items:
+    - root
+    - home/{{ ansible_ssh_user }}
+  sudo: yes
+  ignore_errors: True
+  when: bashrc=="True" and ansible_os_family=="Debian"

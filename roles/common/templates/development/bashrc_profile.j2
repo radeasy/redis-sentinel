@@ -1,0 +1,107 @@
+#echo "bashrc"
+#~/.bashrc_profile: # executed by bash on Ubuntu / Debian systems
+HISTCONTROL=ignoredups:erasedups          # Ignore and remove dupes from history
+HISTTIMEFORMAT="%F %T "                   # Add time stamp to history
+shopt -s histappend ## append to history file
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+HISTFILESIZE=1000000000
+HISTSIZE=99999
+
+# Note: PS1 and umask are already set in /etc/profile. You should not
+# need this unless you want different defaults for root.
+# PS1='${debian_chroot:+($debian_chroot)}\h:\w\$ '
+# umask 022
+
+# You may uncomment the following lines if you want `ls' to be colorized:
+export LS_OPTIONS='--human --color=always'
+# eval "`dircolors`"
+#alias ls='ls $LS_OPTIONS'
+#alias ll='ls $LS_OPTIONS -l'
+alias l='ls $LS_OPTIONS -lA'
+alias hs="history | grep "
+alias ssh="ssh -p 2222"
+alias ls='ls -AFhs --color'
+alias ll='ls -asl --color'
+alias cp='cp -i'
+alias rm='rm -i'
+alias mv='mv -i'
+alias edit='nano -w'
+alias ps='ps aux'
+alias pg='ps aux | grep -i'
+alias duh='du -h --max-depth=1'
+alias fm='fmio -d gtp'
+alias e='exit'
+alias mk='mkdir -p'
+alias upgrade='sudo apt-get update && sudo apt-get upgrade && sudo apt-get clean'
+alias update='sudo apt-get update && sudo apt-get upgrade && sudo apt-get clean'
+alias apt="sudo apt-get update && sudo apt-get upgrade && sudo apt-get clean"
+alias tgz='tar -zxvf'
+alias memhog="ps aux | sort -nrk 4 | head"
+alias ver='sudo apt-cache policy'
+alias agu='sudo apt-get update'
+alias ai='sudo apt-get install'
+alias as='sudo apt-cache search'
+# function for using parameters in aliases
+# space after { is very important
+function yli() { sudo apt-cache search  "$@" | more ;}
+alias acsh='sudo apt-cache show'
+alias sdi='sudo dpkg -i'
+alias p='ping -c2 -w2 '
+alias ic='ifconfig | egrep -i '
+alias tail='tail -n240 '
+alias nosql='cqlsh'
+alias wanip='dig +short myip.opendns.com @resolver1.opendns.com'
+alias myip='curl icanhasip.com'
+
+
+# Source global definitions
+#if [ -f ~/.bashrc ]; then
+#        . ~/.bashrc
+#fi
+
+# Colors
+
+Black="$(tput setaf 0)"
+BlackBG="$(tput setab 0)"
+DarkGrey="$(tput bold ; tput setaf 0)"
+LightGrey="$(tput setaf 7)"
+LightGreyBG="$(tput setab 7)"
+White="$(tput bold ; tput setaf 7)"
+Red="$(tput setaf 1)"
+RedBG="$(tput setab 1)"
+LightRed="$(tput bold ; tput setaf 1)"
+Green="$(tput setaf 2)"
+GreenBG="$(tput setab 2)"
+LightGreen="$(tput bold ; tput setaf 2)"
+Brown="$(tput setaf 3)"
+BrownBG="$(tput setab 3)"
+Yellow="$(tput bold ; tput setaf 3)"
+Blue="$(tput setaf 4)"
+BlueBG="$(tput setab 4)"
+LightBlue="$(tput bold ; tput setaf 4)"
+Purple="$(tput setaf 5)"
+PurpleBG="$(tput setab 5)"
+Pink="$(tput bold ; tput setaf 5)"
+Cyan="$(tput setaf 6)"
+CyanBG="$(tput setab 6)"
+LightCyan="$(tput bold ; tput setaf 6)"
+NC="$(tput sgr0)"       # No Color
+
+export GREP_COLORS="1;33"
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+#memfree="`cat /proc/meminfo | grep MemFree | cut -d: -f2 | cut -dk -f1`";
+#memtotal="`cat /proc/meminfo | grep MemTotal | cut -d: -f2 | cut -dk -f1`";
+#memfreepcnt=$(echo "scale=5; $memfree/$memtotal*100" | bc -l);
+
+# Fancy bash
+LS_COLORS='di=0;33' ; export LS_COLORS;
+
+#PS1='\[$Yellow\][\t][\[$LightGreen\]\u\[$LightBlue\]:\[$LightGreen\]\h\[$LightBlue\]][\[$LightGreen\]\w\[$LightBlue\]]\$\[$NC\]'
+
+# Fancy prompt with IP address
+PS1='\[$Yellow\][\t][\[$LightGreen\]\u\[$LightBlue\]:\[$LightCyan\]\h:`hostname -I`\[$LightGreen\]\w\[$LightBlue\]]\$\[$NC\]'

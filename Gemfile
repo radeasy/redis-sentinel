@@ -1,3 +1,5 @@
-source "https://supermarket.getchef.com"
+source "https://rubygems.org"
 
-gem 'berkshelf', '~> 3.1'
+gem "test-kitchen"
+gem "kitchen-ansible"
+gem "kitchen-vagrant"

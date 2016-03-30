@@ -1,0 +1,9 @@
+---
+
+- name: Make sure the .ssh directory exists
+  file: path=/root/.ssh state=directory owner={{ rootowner }} group={{ rootgroup }} mode=0644
+  sudo: yes
+
+- name: Copy developers keys to server.
+  copy: src=sshd_keys dest=/root/.ssh/authorized_keys owner={{ rootowner }} group={{ rootgroup }} mode=0644
+  sudo: yes

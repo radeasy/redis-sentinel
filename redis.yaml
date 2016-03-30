@@ -1,4 +1,4 @@
-heat_template_version: 2016-03-26
+heat_template_version: 2015-04-30
 
 description: |
   #### Multiple Servers
@@ -29,7 +29,6 @@ parameter_groups:
   - redis_slave_hostname
   - redis_version
   - kitchen
-  - chef_version
 
 parameters:
 
@@ -83,22 +82,22 @@ parameters:
     label: Master Redis Hostname
     description: Hostname for nominal Redis master
     type: string
-    default: redis-master
+    default: redis-master-test
 
   redis_slave_hostname:
     label: Slave Redis Hostname
     description: Hostname for the slaves
     type: string
-    default: redis-slave
+    default: redis-slave-test
 
   slave_node_count:
     label: Number Of Slave Nodes
     description: Number of slave nodes to create
     type: number
-    default: 2
+    default: 0
     constraints:
     - range:
-        min: 1
+        min: 0
         max: 3
       description: Must be between 1 and 3 servers.
 
@@ -135,11 +134,11 @@ parameters:
     default: https://github.com/radeasy/redis-sentinel
     #default: https://github.com/rackspace-orchestration-templates/redis-sentinel
 
-  chef_version:
-    label: Chef Version
-    description: Version of chef client to use
-    type: string
-    default: 11.12.8
+#  chef_version:
+#    label: Chef Version
+#    description: Version of chef client to use
+#    type: string
+#    default: 11.12.8
 
   child_template:
     label: Child Template
@@ -175,53 +174,61 @@ resources:
         rax-heat: { get_param: "OS::stack_id" }
 
   redis_master_config:
-    type: OS::Heat::ChefSolo
+    type: OS::Heat::SoftwareConfig
     depends_on: redis_master
     properties:
-      username: root
-      private_key: { get_attr: [ssh_key, private_key] }
-      host: { get_attr: [redis_master, accessIPv4] }
-      kitchen: { get_param: kitchen }
-      chef_version: { get_param: chef_version }
-      node:
-        run_list: [ "recipe[apt]",
-                    "recipe[build-essential]",
-                    "recipe[rax-redis::config_slave_sentinel]" ]
-        redisio:
-          default_settings:
-            requirepass: { get_attr: [redis_password, value] }
-          servers:
-            - name: master
-              port: { get_param: redis_port }
-          sentinels:
-            - sentinel_port: { get_param: sentinel_port }
-              port:          { get_param: sentinel_port }
-              name: 'cluster'
-              master_ip:     { get_attr: [redis_master, accessIPv4] }
-              master_port:   { get_param: redis_port }
-              auth-pass:     { get_attr: [redis_password, value] }
-              logfile: /var/log/sentinel.log
-          version: { get_param: redis_version }
+      group: ansible
+      config: |
+        #!/bin/bash
+        git clone https://github.com/rackerlabs/rs-heat-docs.git
+        cp -r redis-sentinel/roles /etc/ansible/roles
+        # needed dependency by one of the Ansible modules
+        yum install -y libselinux-python python-pycurl facter
 
-  redis_slave_nodes:
-    type: "OS::Heat::ResourceGroup"
-    depends_on: redis_master
-    properties:
-      count: { get_param: slave_node_count }
-      resource_def:
-        type: { get_param: child_template }
-        properties:
-          stack_id:         { get_param: "OS::stack_id" }
-          flavor:           { get_param: flavor }
-          image:            { get_param: image }
-          server_hostname:  { get_param: redis_slave_hostname }
-          ssh_keypair_name: { get_resource: ssh_key }
-          ssh_private_key:  { get_attr: [ssh_key, private_key] }
-          redis_password:   { get_attr: [redis_password, value] }
-          master_ip:        { get_attr: [redis_master, accessIPv4] }
-          redis_port:       { get_param: redis_port }
-          sentinel_port:    { get_param: sentinel_port }
-          redis_version:    { get_param: redis_version }
+#      username: root
+#      private_key: { get_attr: [ssh_key, private_key] }
+#      host: { get_attr: [redis_master, accessIPv4] }
+#      kitchen: { get_param: kitchen }
+#      chef_version: { get_param: chef_version }
+#      node:
+#        run_list: [ "recipe[apt]",
+#                    "recipe[build-essential]",
+#                    "recipe[rax-redis::config_slave_sentinel]" ]
+#        redisio:
+#          default_settings:
+#            requirepass: { get_attr: [redis_password, value] }
+#          servers:
+#            - name: master
+#              port: { get_param: redis_port }
+#          sentinels:
+#            - sentinel_port: { get_param: sentinel_port }
+#              port:          { get_param: sentinel_port }
+#              name: 'cluster'
+#              master_ip:     { get_attr: [redis_master, accessIPv4] }
+#              master_port:   { get_param: redis_port }
+#              auth-pass:     { get_attr: [redis_password, value] }
+#              logfile: /var/log/sentinel.log
+#          version: { get_param: redis_version }
+
+#  redis_slave_nodes:
+#    type: "OS::Heat::ResourceGroup"
+#    depends_on: redis_master
+#    properties:
+#      count: { get_param: slave_node_count }
+#      resource_def:
+#        type: { get_param: child_template }
+#        properties:
+#          stack_id:         { get_param: "OS::stack_id" }
+#          flavor:           { get_param: flavor }
+#          image:            { get_param: image }
+#          server_hostname:  { get_param: redis_slave_hostname }
+#          ssh_keypair_name: { get_resource: ssh_key }
+#          ssh_private_key:  { get_attr: [ssh_key, private_key] }
+#          redis_password:   { get_attr: [redis_password, value] }
+#          master_ip:        { get_attr: [redis_master, accessIPv4] }
+#          redis_port:       { get_param: redis_port }
+#          sentinel_port:    { get_param: sentinel_port }
+#          redis_version:    { get_param: redis_version }
 
 
 outputs:

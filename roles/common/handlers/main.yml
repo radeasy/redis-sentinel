@@ -1,0 +1,86 @@
+---
+# file: roles/common/handlers/main.yml
+
+### NTP
+# NTP daemon for CentOS and Debian.
+- name: restart ntpd
+  service: name=ntpd state=restarted
+  when: ansible_os_family == "RedHat"
+
+- name: restart ntpd
+  service: name=ntp state=restarted
+  when: ansible_os_family == "Debian"
+
+
+### APACHE
+# Could not get service httpd to reload with service statement!
+# However command and shell works.
+- name: reload apache
+  #shell: /sbin/service httpd reload
+  command: service httpd reload
+  sudo: yes
+  when: ansible_os_family == "RedHat"
+
+- name: restart apache
+  command: service httpd restart
+  sudo: yes
+  when: ansible_os_family == "RedHat"
+        #and env == "development"
+
+### NGINX
+- name: reload nginx
+  command: service nginx force-reload
+
+- name: restart nginx
+  command: service nginx restart
+
+- name: stop nginx
+  command: service nginx stop
+
+
+### SSH
+# SSH daemon for CentOS and Debian.
+- name: restart sshd
+  service: name=sshd state=restarted
+  when: ansible_os_family == "RedHat"
+
+- name: restart sshd
+  service: name=sshd state=restarted
+  when: ansible_os_family == "Debian"
+
+### AUX
+# Reload source when needed.
+- name: reload bashrc
+  shell: source ~/.bashrc
+
+
+### FIREWALL
+# Reload ferm and make sure it is on. For Redhat. Debian may be using the same location.
+- name: ferm_on
+  shell: /usr/sbin/ferm /etc/ferm/ferm.conf
+  when: ansible_os_family == "RedHat"
+
+# Reload ferm and make sure it is on. For Debian.
+- name: ferm_on
+  shell: /usr/sbin/ferm /etc/ferm/ferm.conf
+  when: ansible_os_family == "Debian"
+
+# Restart Redis when not service. For Debian.
+- name: reload redis
+  shell: "{{ item }}"
+  with_items:
+    - redis-cli SHUTDOWN
+    - /opt/redis/redis-server /opt/redis/redis.conf
+  sudo: yes
+  ignore_errors: True
+  when: ansible_os_family == "Debian"
+
+# Reload Redis when service installed. For RedHat.
+- name: reload redis
+  shell: "{{ item }}"
+  with_items:
+    - /usr/sbin/service redis-server reload
+  tags:
+    - redis-reload
+  sudo: yes
+  when: ansible_os_family == "RedHat"

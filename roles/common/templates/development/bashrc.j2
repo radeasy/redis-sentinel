@@ -1,0 +1,101 @@
+# .bashrc
+# on archlinux this should go to: ~/.bash_profile
+shopt -s histappend
+
+# User specific aliases and functions
+HISTCONTROL=ignoredups:erasedups          # Ignore and remove dupes from history
+HISTTIMEFORMAT="%F %T "                   # Add time stamp to history
+shopt -s histappend ## append to history file
+HISTFILESIZE=1000000000
+HISTSIZE=99999
+export EDITOR=/usr/bin/nano
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+        . /etc/bashrc
+fi
+
+# Aliases
+
+alias ls='ls -AFhs --color'
+alias ll='ls -asl --color'
+alias cp='cp -i'
+alias rm='rm -i'
+alias mv='mv -i'
+alias edit='nano -w'
+alias ps='ps aux'
+alias pg='ps aux | grep -i'
+alias hs='history | grep -i'
+alias duh='du -h --max-depth=1'
+alias fm='fmio -d gtp'
+alias l='locate '
+alias lc='ls -lct'
+alias lcm='ls -lct | more'
+alias n='nano'
+alias c='clear'
+alias mk='mkdir -p'
+alias yi='yum install'
+alias yiy='yum install -y'
+alias ycu='yum check-update | more'
+alias yu='yum update'
+alias yuy='yum update -y'
+alias yl='yum list '
+# function for using parameters in aliases
+# space after { is very important
+function yli() { /usr/bin/yum list "$@" | more ;}
+alias ycua="ycu | awk '{ print \$1 }'" #or without backslash alias ycua="ycu | awk '{ print \$1 }'"
+alias ycud="ycu | awk -F'.' '{ print \$1 }'" # alias ycud="ycu | awk -F'.' '{ print \$1 }'"
+alias cn='nano /etc/sysconfig/network-scripts/ifcfg-eth0'
+alias ch='nano /etc/sysconfig/network'
+alias e='exit'
+alias p='ping -c2 -w2 '
+alias ic='ifconfig | egrep -i '
+alias tail='tail -n240 '
+alias nosql='cqlsh'
+alias wanip='dig +short myip.opendns.com @resolver1.opendns.com'
+
+# Colors
+Red="$(tput setaf 1)"
+RedBG="$(tput setab 1)"
+LightRed="$(tput bold ; tput setaf 1)"
+Brown="$(tput setaf 3)"
+BrownBG="$(tput setab 3)"
+Yellow="$(tput bold ; tput setaf 3)"
+Blue="$(tput setaf 4)"
+BlueBG="$(tput setab 4)"
+LightBlue="$(tput bold ; tput setaf 4)"
+Purple="$(tput setaf 5)"
+PurpleBG="$(tput setab 5)"
+Pink="$(tput bold ; tput setaf 5)"
+Cyan="$(tput setaf 6)"
+CyanBG="$(tput setab 6)"
+LightCyan="$(tput bold ; tput setaf 6)"
+NC="$(tput sgr0)"       # No Color
+
+# Functions
+
+memfree="`cat /proc/meminfo | grep MemFree | cut -d: -f2 | cut -dk -f1`";
+memtotal="`cat /proc/meminfo | grep MemTotal | cut -d: -f2 | cut -dk -f1`";
+memfreepcnt=$(echo "scale=5; $memfree/$memtotal*100" | bc -l);
+
+# Fancy bash
+LS_COLORS='di=0;33' ; export LS_COLORS
+PS1='\[$Yellow\][\t][\[$LightGreen\]\u\[$LightBlue\]:\[$LightCyan\]\h\[$LightBlue\]][\[$LightGreen\]\w\[$LightBlue\]]\$\[$NC\]'
+
+## for VM host use / independent not virtualized:
+PS1='\[$Yellow\][\t][\[$LightGreen\]\u\[$Purple\]:\[$LightGreen\]\h\[$LightBlue\]][\[$LightGreen\]\w\[$LightBlue\]]\$\[$NC\]'
+
+# with IP address
+PS1='\[$Yellow\][\t][\[$LightGreen\]\u\[$LightBlue\]:\[$LightCyan\]\h:`hostname -I`\[$LightGreen\]\w\[$LightBlue\]]\$\[$NC\]'
+
+## for VM guests / virtualized
+PS1='\[$Yellow\][\t][\[$LightGreen\]\u\[$Purple\]:\[$LightGreen\]\h\[$LightBlue\]][\[$LightGreen\]\w\[$LightBlue\]]\$\[$NC\]'
+
+## above with IP / ubuntu
+PS1='\[$Yellow\][\t][\[$LightGreen\]\u\[$Purple\]:\h:`hostname -I`\[$LightGreen\]\[$LightBlue\]][\[$LightGreen\]\w\[$LightBlue\]]\$\[$NC\]'
+
+## on centos
+PS1='\[$Yellow\][\t][\[$LightGreen\]\u\[$Purple\]:\h:`hostname -i`\[$LightGreen\]\[$LightBlue\]][\[$LightGreen\]\w\[$LightBlue\]]\$\[$NC\]'
+
+# with IP when above fails - show all ip6 addresses together with ipv4 - you might need to install facter
+PS1='\[$Yellow\][\t][\[$LightGreen\]\u\[$LightBlue\]:\[$LightCyan\]\h:`facter ipaddress_eth0`\[$LightGreen\]\w\[$LightBlue\]]\$\[$NC\]'
