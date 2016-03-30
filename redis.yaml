@@ -32,6 +32,10 @@ parameter_groups:
 
 parameters:
 
+  server_pw:
+    type: OS::Heat::RandomString
+    # This is not used anywhere yet. Only on output.
+
   flavor:
     label: Server Size
     description: |
