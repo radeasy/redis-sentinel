@@ -172,9 +172,10 @@ resources:
       group: ansible
       config: |
         #!/bin/bash
-        git clone git@github.com:radeasy/redis-sentinel.git
+        git clone https://github.com/radeasy/redis-sentinel.git
+        cd redis-sentinel
         git checkout story/NOV-2805-provision-a-redis-sentinel-cluster
-        cp -r redis-sentinel/roles /etc/ansible/roles
+        cp -r roles /etc/ansible/roles
         # needed dependency by one of the Ansible modules
         yum install -y libselinux-python python-pycurl facter
 
