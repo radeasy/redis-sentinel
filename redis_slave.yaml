@@ -1,4 +1,4 @@
-heat_template_version: 2015-04-30
+heat_template_version: 2015-10-15
 
 description: |
   This is a Heat template to deploy a single Linux server running Redis slave.
@@ -68,13 +68,6 @@ parameters:
     default: https://github.com/radeasy/redis-sentinel
     #default: https://github.com/rackspace-orchestration-templates/redis-sentinel
 
-#  chef_version:
-#    label: Chef Version
-#    description: Version of chef client to use
-#    type: string
-#    default: 11.12.8
-
-
 resources:
 
   redis_slave_server:
@@ -86,6 +79,23 @@ resources:
       key_name: { get_param: ssh_keypair_name }
       metadata:
         rax-heat: { get_param: stack_id }
+      user_data_format: RAW
+      user_data: |
+        #!/bin/bash
+        # EPEL Repository.
+        sudo yum install -q -y epel-release
+
+        # Rpmforge Repository.
+        sudo rpm -ivh --force http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
+        sed -i '1,10 s/^enabled.*=.*/enabled=1/g' /etc/yum.repos.d/rpmforge.repo
+
+        # Remi Repository.
+        echo "Adding remi Repository"
+        sudo rpm -ivh --force http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+        sed -i '1,10 s/^enabled.*=.*/enabled=1/g' /etc/yum.repos.d/remi.repo
+
+        # Install dependencies and bashrc.
+        sudo yum install -y git libselinux-python python-pycurl python-pip python-devel ntp nano htop ansible bind-utils curses glances
 
 #  redis_slave_setup:
 #    type: "OS::Heat::ChefSolo"
