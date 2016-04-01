@@ -139,3 +139,6 @@ outputs:
 
   redis_slave_ip:
     value: { get_attr: [redis_slave_server, accessIPv4] }
+
+  slave_pw:
+    value: { get_attr: [slave_pw, accessIPv4] }
