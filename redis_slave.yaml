@@ -26,6 +26,12 @@ parameters:
     type: string
     default: 3.0.7
 
+  slave_pw:
+    type: OS::Heat::RandomString
+    properties:
+      length: 18
+      sequence: lettersdigits
+
   server_hostname:
     description: Hostname for the server.
     type: string
@@ -74,6 +80,7 @@ resources:
     type: "OS::Nova::Server"
     properties:
       name: { get_param: server_hostname }
+      admin_pass: { get_attr: [ server_pw, value ] }
       flavor: { get_param: flavor }
       image: { get_param: image }
       key_name: { get_param: ssh_keypair_name }
