@@ -90,15 +90,14 @@ resources:
       user_data_format: RAW
       user_data: |
         #!/bin/bash
-        # EPEL Repository. No spaces allowed between rows.
+        # EPEL Repository.
         sudo yum install -q -y epel-release
         # Rpmforge Repository.
         sudo rpm -ivh --force http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
-        sed -i '1,10 s/^enabled.*=.*/enabled=1/g' /etc/yum.repos.d/rpmforge.repo
+        sudo sed -i '1,10 s/^enabled.*=.*/enabled=1/g' /etc/yum.repos.d/rpmforge.repo
         # Remi Repository.
-        echo "Adding remi Repository"
         sudo rpm -ivh --force http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
-        sed -i '1,10 s/^enabled.*=.*/enabled=1/g' /etc/yum.repos.d/remi.repo
+        sudo sed -i '1,10 s/^enabled.*=.*/enabled=1/g' /etc/yum.repos.d/remi.repo
         # Install dependencies and bashrc.
         sudo yum install -y git libselinux-python python-pycurl python-pip python-devel ntp nano htop ansible bind-utils curses glances
 
