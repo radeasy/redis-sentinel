@@ -26,12 +26,6 @@ parameters:
     type: string
     default: 3.0.7
 
-  slave_pw:
-    type: OS::Heat::RandomString
-    properties:
-      length: 18
-      sequence: lettersdigits
-
   server_hostname:
     description: Hostname for the server.
     type: string
@@ -75,6 +69,13 @@ parameters:
     #default: https://github.com/rackspace-orchestration-templates/redis-sentinel
 
 resources:
+
+  slave_pw:
+    type: OS::Heat::RandomString
+    properties:
+      length: 18
+      sequence: lettersdigits
+
 
   redis_slave_server:
     type: "OS::Nova::Server"
