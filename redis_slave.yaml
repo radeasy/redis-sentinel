@@ -8,7 +8,8 @@ parameters:
   flavor:
     description: Flavor for Cloud Servers
     type: string
-    default: 512MB Standard Instance
+    default: 1GB Standard Instance
+#    default: 512MB Standard Instance
 
   image:
     label: Server Image
@@ -90,46 +91,13 @@ resources:
       user_data_format: RAW
       user_data: |
         #!/bin/bash
+        # Change sshd port and restart sshd.
+        sudo sed -i 's/^#Port .*/Port 59806/g' /etc/ssh/sshd_config
+        sudo echo 'Port 22' >> /etc/ssh/sshd_config
+        sudo service sshd restart
+        sudo service iptables stop
         # EPEL Repository.
         sudo yum install -q -y epel-release
-        # Rpmforge Repository.
-        sudo rpm -ivh --force http://pkgs.repoforge.org/rpmforge-release/rpmforge-release-0.5.3-1.el6.rf.x86_64.rpm
-        sudo sed -i '1,10 s/^enabled.*=.*/enabled=1/g' /etc/yum.repos.d/rpmforge.repo
-        # Remi Repository.
-        sudo rpm -ivh --force http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
-        sudo sed -i '1,10 s/^enabled.*=.*/enabled=1/g' /etc/yum.repos.d/remi.repo
-        # Install dependencies and bashrc.
-        sudo yum install -y git libselinux-python python-pycurl python-pip python-devel ntp nano htop ansible bind-utils curses glances
-
-#  redis_slave_setup:
-#    type: "OS::Heat::ChefSolo"
-#    depends_on: redis_slave_server
-#    properties:
-#      username: root
-#      private_key: { get_param: ssh_private_key }
-#      host: { get_attr: [redis_slave_server, accessIPv4] }
-#      kitchen: { get_param: kitchen }
-#      chef_version: { get_param: chef_version }
-#      node:
-#        run_list: [ "recipe[rax-redis::config_slave_sentinel]" ]
-#        redisio:
-#          default_settings:
-#            slaveof:
-#              address:  { get_param: master_ip }
-#              port:     { get_param: redis_port }
-#            masterauth: { get_param: redis_password }
-#          servers:
-#            - name: slave
-#              port: { get_param: redis_port }
-#          sentinels:
-#            - sentinel_port: { get_param: sentinel_port }
-#              port:          { get_param: sentinel_port }
-#              name: 'cluster'
-#              master_ip:     { get_param: master_ip }
-#              master_port:   { get_param: redis_port }
-#              auth-pass:     { get_param: redis_password }
-#              logfile: /var/log/sentinel.log
-#          version: { get_param: redis_version }
 
 outputs:
 

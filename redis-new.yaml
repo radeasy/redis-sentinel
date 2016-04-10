@@ -10,8 +10,6 @@ description: |
   clustered with a [sentinel](http://redis.io/topics/sentinel)
   instance on each node.
 
-  This rerquire python-openstackclient (or python-heatclient) and Python 2.7+ (probably python 2.7.22+).
-
 parameter_groups:
 
 - label: Server Settings
@@ -133,6 +131,13 @@ parameters:
     description: URL for the kitchen to use
     type: string
     default: https://github.com/radeasy/redis-sentinel
+    #default: https://github.com/rackspace-orchestration-templates/redis-sentinel
+
+#  chef_version:
+#    label: Chef Version
+#    description: Version of chef client to use
+#    type: string
+#    default: 11.12.8
 
   child_template:
     label: Child Template
@@ -150,12 +155,6 @@ resources:
       name: { get_param: "OS::stack_id" }
       save_private_key: true
 
-  server_pw:
-    type: OS::Heat::RandomString
-    properties:
-      length: 18
-      sequence: lettersdigits
-
   redis_password:
     type: OS::Heat::RandomString
     properties:
@@ -168,12 +167,11 @@ resources:
       group: script
       config: |
         #!/bin/bash
-        yum install -y git libselinux-python python-pycurl nano htop
         git clone https://github.com/radeasy/redis-sentinel.git
         cd redis-sentinel
         git checkout story/NOV-2805-provision-a-redis-sentinel-cluster
-        mkdir -p /etc/ansible/roles
         cp -r roles /etc/ansible/roles
+        yum install -y libselinux-python python-pycurl facter
 
   redis_config:
     type: OS::Heat::SoftwareConfig
@@ -190,34 +188,83 @@ resources:
   deploy_role:
     type: OS::Heat::SoftwareDeployment
     properties:
-      #signal_transport: TEMP_URL_SIGNAL
+      signal_transport: TEMP_URL_SIGNAL
       config:
         get_resource: redis_base_config
       server:
         get_resource: server
 
-  deploy_redis:
-    type: OS::Heat::SoftwareDeployment
-    properties:
-      #signal_transport: TEMP_URL_SIGNAL
-      config:
-        get_resource: redis_config
-      server:
-        get_resource: server
+#  deploy_redis:
+#    type: OS::Heat::SoftwareDeployment
+#    properties:
+#      signal_transport: TEMP_URL_SIGNAL
+#      config:
+#        get_resource: redis_config
+#      server:
+#        get_resource: server
+
+  boot_config:
+    type: Heat::InstallConfigAgent
 
   server:
     type: OS::Nova::Server
     depends_on: [ ssh_key ]
     properties:
       name: { get_param: server_hostname }
-      admin_pass: { get_attr: [ server_pw, value ] }
       flavor: { get_param: flavor }
       image: { get_param: image }
       key_name: { get_resource: ssh_key }
       metadata:
         rax-heat: { get_param: "OS::stack_id" }
       software_config_transport: POLL_TEMP_URL
+      config_drive: true
+      user_data: {get_attr: [boot_config, config]}
       user_data_format: SOFTWARE_CONFIG
+      username: root
+      private_key: { get_attr: [ssh_key, private_key] }
+      host: { get_attr: [server, accessIPv4] }
+      kitchen: { get_param: kitchen }
+#      chef_version: { get_param: chef_version }
+#      node:
+#        run_list: [ "recipe[apt]",
+#                    "recipe[build-essential]",
+#                    "recipe[rax-redis::config_slave_sentinel]" ]
+#        redisio:
+#          default_settings:
+#            requirepass: { get_attr: [redis_password, value] }
+#          servers:
+#            - name: master
+#              port: { get_param: redis_port }
+#          sentinels:
+#            - sentinel_port: { get_param: sentinel_port }
+#              port:          { get_param: sentinel_port }
+#              name: 'cluster'
+#              master_ip:     { get_attr: [server, accessIPv4] }
+#              master_port:   { get_param: redis_port }
+#              auth-pass:     { get_attr: [redis_password, value] }
+#              logfile: /var/log/sentinel.log
+#          version: { get_param: redis_version }
+
+#  redis_slave_nodes:
+#    type: "OS::Heat::ResourceGroup"
+#    depends_on: server
+#    properties:
+#      count: { get_param: slave_node_count }
+#      resource_def:
+#        type: { get_param: child_template }
+#        properties:
+#          stack_id:         { get_param: "OS::stack_id" }
+#          flavor:           { get_param: flavor }
+#          image:            { get_param: image }
+#          server_hostname:  { get_param: redis_slave_hostname }
+#          ssh_keypair_name: { get_resource: ssh_key }
+#          ssh_private_key:  { get_attr: [ssh_key, private_key] }
+#          redis_password:   { get_attr: [redis_password, value] }
+#          master_ip:        { get_attr: [server, accessIPv4] }
+#          redis_port:       { get_param: redis_port }
+#          sentinel_port:    { get_param: sentinel_port }
+#          redis_version:    { get_param: redis_version }
+
 
 outputs:
   private_key:
@@ -228,47 +275,43 @@ outputs:
     description: Redis Password
     value: { get_attr: [redis_password, value] }
 
-  server_pw:
-    description: Server Admin Password
-    value: { get_attr: [server_pw, value] }
-
   server_ip:
     description: Redis Master IP
     value: { get_attr: [server, accessIPv4]}
 
-#  redis_slave_ips:
-#    description: Redis Slave IPs
-#    value: { get_attr: [redis_slave_nodes, redis_slave_ip] }
-#
-#  redis_port:
-#    description: Redis Port
-#    value: { get_param: redis_port }
-#
-#  sentinel_port:
-#    description: Sentinel Port
-#    value: { get_param: sentinel_port }
-#
-#  stdout:
-#    description: Ansible Output
-#    value:
-#      get_attr: [ deploy_redis, deploy_stdout ]
-#
-#  stderr:
-#    description: Ansible Error Output
-#    value:
-#      get_attr: [ deploy_redis, deploy_stderr ]
-#
-#  status_code:
-#    description: Exit Code
-#    value:
-#      get_attr: [ deploy_redis, deploy_status_code ]
-#
-#  role_status_code:
-#    description: Exit Code returned from deploying the role to the server
-#    value:
-#      get_attr: [ deploy_role, deploy_status_code ]
-#
-#  server_ip:
-#    description: Server IP Address
-#    value:
-#      get_attr: [ server, accessIPv4 ]
+  redis_slave_ips:
+    description: Redis Slave IPs
+    value: { get_attr: [redis_slave_nodes, redis_slave_ip] }
+
+  redis_port:
+    description: Redis Port
+    value: { get_param: redis_port }
+
+  sentinel_port:
+    description: Sentinel Port
+    value: { get_param: sentinel_port }
+
+  stdout:
+    description: Ansible Output
+    value:
+      get_attr: [ deploy_redis, deploy_stdout ]
+
+  stderr:
+    description: Ansible Error Output
+    value:
+      get_attr: [ deploy_redis, deploy_stderr ]
+
+  status_code:
+    description: Exit Code
+    value:
+      get_attr: [ deploy_redis, deploy_status_code ]
+
+  role_status_code:
+    description: Exit Code returned from deploying the role to the server
+    value:
+      get_attr: [ deploy_role, deploy_status_code ]
+
+  server_ip:
+    description: Server IP Address
+    value:
+      get_attr: [ server, accessIPv4 ]
