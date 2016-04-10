@@ -5,15 +5,32 @@ description: |
 
 parameters:
 
-  flavor:
+  slave_flavor:
     description: Flavor for Cloud Servers
     type: string
     default: 1GB Standard Instance
-#    default: 512MB Standard Instance
+    constraints:
+      - allowed_values:
+        - 1 GB General Purpose v1
+        - 2 GB General Purpose v1
+        - 4 GB General Purpose v1
+        - 8 GB General Purpose v1
+        - 15 GB I/O v1
+        - 30 GB I/O v1
+        - 512MB Standard Instance
+        - 1GB Standard Instance
+        - 2GB Standard Instance
+        - 4GB Standard Instance
+        - 8GB Standard Instance
+        - 15GB Standard Instance
+        - 30GB Standard Instance
+        description: |
+          Must be a valid Rackspace Cloud Server flavor for the region you have
+          selected to deploy into.
 
-  image:
+  slave_image:
     label: Server Image
-    description: Operating system to use for created servers
+    description: Operating system to use for created servers.
     type: string
     default: Centos 6 (PVHVM)
     constraints:
@@ -23,7 +40,7 @@ parameters:
     description: Must be a supported operating system.
 
   redis_version:
-    description: version of redis to install
+    description: Version of redis to install.
     type: string
     default: 3.0.7
 
@@ -33,19 +50,19 @@ parameters:
     default: redis-slave
 
   ssh_keypair_name:
-    description: Nova keypair name for ssh access to the server
+    description: Nova keypair name for ssh access to the server.
     type: string
 
   ssh_private_key:
-    description: private key to access the created servers
+    description: Private key to access the created servers.
     type: string
 
   master_ip:
-    description: IP address of redis master server to which we are enslaved
+    description: IP address of redis master server to which we are enslaved.
     type: string
 
   redis_password:
-    description: password for redis auth
+    description: Password for redis auth.
     type: string
 
   redis_port:
@@ -83,21 +100,21 @@ resources:
     properties:
       name: { get_param: server_hostname }
       admin_pass: { get_attr: [ slave_pw, value ] }
-      flavor: { get_param: flavor }
-      image: { get_param: image }
+      flavor: { get_param: slave_flavor }
+      image: { get_param: slave_image }
       key_name: { get_param: ssh_keypair_name }
       metadata:
         rax-heat: { get_param: stack_id }
       user_data_format: RAW
       user_data: |
-        #!/bin/bash
+        #!/bin/sh
         # Change sshd port and restart sshd.
-        sudo sed -i 's/^#Port .*/Port 59806/g' /etc/ssh/sshd_config
-        sudo echo 'Port 22' >> /etc/ssh/sshd_config
-        sudo service sshd restart
-        sudo service iptables stop
-        # EPEL Repository.
-        sudo yum install -q -y epel-release
+        sed -i 's/^#Port .*/Port 59806/g' /etc/ssh/sshd_config
+        echo 'Port 22' >> /etc/ssh/sshd_config
+        echo 'Port 59806' >> /etc/ssh/sshd_config
+        service sshd restart
+        service iptables stop
+        exit 0
 
 outputs:
 
